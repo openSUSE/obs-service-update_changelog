@@ -8,6 +8,11 @@ from git import Repo
 from datetime import datetime
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+try:
+    from shlex import quote as cmd_quote
+except ImportError:
+    from pipes import quote as cmd_quote
+
 
 OSC_VC = '/usr/lib/build/vc'
 
@@ -98,10 +103,9 @@ def main():
         deleted=deleted,
     ).encode("utf-8").strip()
 
-    changelog_msg_escaped = "'" + str(changelog_entry).replace("'", "'\\''") + "'"
-    cmd = "mailaddr={0} {1} -m {2}".format(commit.author.email,
+    cmd = "mailaddr={0} {1} -m {2}".format(cmd_quote(commit.author.email),
                                            OSC_VC,
-                                           changelog_msg_escaped)
+                                           cmd_quote(changelog_entry))
     os.system(cmd)
 
     try:
