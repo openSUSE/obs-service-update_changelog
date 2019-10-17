@@ -52,9 +52,6 @@ def main():
             "Fix _lastrevision reference.") % (lastrevision, commt.hexsha))
         sys.exit(1)
 
-    if "[skip]" in commit.message:
-        sys.exit(0)
-
     existing_patches = set(
         [
             py.path.local(it.path).basename
@@ -89,7 +86,8 @@ def main():
     ref = repo.commit("HEAD")
     messages = []
     while ref.hexsha != repo.commit(lastrevision).hexsha:
-        messages.append(ref.message.encode('utf8'))
+        if "[skip]" not in ref.message:
+            messages.append(ref.message.encode('utf8'))
         ref = repo.commit("%s^" % ref.hexsha)
 
     if not messages:
