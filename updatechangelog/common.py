@@ -92,19 +92,18 @@ def main():
 
     if not messages:
         log.info("Nothing new.")
-        sys.exit(0)
+    else:
+        changelog_entry = template.render(
+            messages=messages,
+            added=added,
+            modified=modified,
+            deleted=deleted,
+        ).encode("utf-8").strip()
 
-    changelog_entry = template.render(
-        messages=messages,
-        added=added,
-        modified=modified,
-        deleted=deleted,
-    ).encode("utf-8").strip()
-
-    cmd = "mailaddr={0} {1} -m {2}".format(cmd_quote(commit.author.email),
-                                           OSC_VC,
-                                           cmd_quote(changelog_entry))
-    os.system(cmd)
+        cmd = "mailaddr={0} {1} -m {2}".format(cmd_quote(commit.author.email),
+                                               OSC_VC,
+                                               cmd_quote(changelog_entry))
+        os.system(cmd)
 
     try:
         with open('_lastrevision', 'wb') as f:
