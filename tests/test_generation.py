@@ -1,7 +1,7 @@
 import pytz
 import pytest
 from datetime import datetime
-from mock import Mock, MagicMock, patch
+from mock import Mock, MagicMock, patch, mock_open
 
 from updatechangelog import common
 
@@ -10,12 +10,10 @@ def test_nothing_new():
     os_mock = Mock()
     os_mock.getcwd.return_value = ""
     Repo_mock = MagicMock()
-    write_mock = Mock()
-    open_mock = MagicMock()
-    open_mock.write = write_mock
+    open_mock = mock_open()
     with patch.multiple(common, os=os_mock, Repo=Repo_mock, open=open_mock):
         common.main()
-    assert write_mock.called_once()
+    open_mock().write.assert_called_once()
 
 
 def test_rendering():
@@ -44,9 +42,7 @@ def test_new_commit():
     os_mock = Mock()
     os_mock.getcwd.return_value = ""
     Repo_mock = MagicMock()
-    write_mock = Mock()
-    open_mock = MagicMock()
-    open_mock.write = write_mock
+    open_mock = mock_open()
 
     commit1_mock = MagicMock()
     commit1_mock.configure_mock(hexsha="abcdef12345")
@@ -64,4 +60,4 @@ def test_new_commit():
 
     with patch.multiple(common, os=os_mock, Repo=Repo_mock, open=open_mock):
         common.main()
-    assert write_mock.called_once()
+    open_mock().write.assert_called_once()
