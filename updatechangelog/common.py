@@ -77,6 +77,12 @@ def main():
         ]
     ).difference(added.union(deleted))
 
+    # Sort patches based the times of the commits
+    _sort_function = lambda x: next(repo.iter_commits(paths=os.path.join("salt", x), max_count=1)).committed_date
+    added = sorted(added, key=_sort_function, reverse=True)
+    modified = sorted(modified, key=_sort_function, reverse=True)
+    deleted = sorted(deleted, key=_sort_function, reverse=True)
+
     template = get_template()
 
     current_dt = datetime.now().replace(tzinfo=pytz.utc)
