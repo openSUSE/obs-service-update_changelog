@@ -1,7 +1,7 @@
 import pytz
 import pytest
 from datetime import datetime
-from mock import Mock, MagicMock, patch, mock_open
+from unittest.mock import Mock, MagicMock, patch, mock_open
 
 from updatechangelog import common
 
