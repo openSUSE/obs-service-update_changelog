@@ -1,24 +1,46 @@
+#
 # spec file for package obs-service-update_changelog
+#
+# Copyright (c) 2025 SUSE LLC
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 
-%define service update_changelog
-%define branch master
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
+#
 
-Name:           obs-service-%{service}
-Version:        0.6.0
+%{?sle15_python_module_pythons}
+Name:           obs-service-update_changelog
+Version:        0.6.1
 Release:        0
 Summary:        An OBS source service: Update spec file version
 License:        GPL-2.0+
 Group:          Development/Tools/Building
-Url:            https://github.com/openSUSE/obs-service-%{service}/archive/%{branch}.tar.gz
-Source:         https://github.com/openSUSE/obs-service-%{service}/archive/%{branch}.tar.gz
+URL:            https://github.com/openSUSE/obs-service-update_changelog
+Source:         %{name}-%{version}.tar.gz
 BuildArch:      noarch
-BuildRequires:  python3-devel
+BuildRequires:  %{python_module devel}
+BuildRequires:  %{python_module setuptools}
+BuildRequires:  %{python_module pytest}
+BuildRequires:  %{python_module GitPython}
+BuildRequires:  %{python_module Jinja2 >= 2.9}
+BuildRequires:  %{python_module py}
+BuildRequires:  %{python_module pytz}
 BuildRequires:  python-rpm-macros
-Requires:       python3-GitPython
-Requires:       python3-Jinja2 >= 2.9
-Requires:       python3-py
-Requires:       python3-pytz
-BuildRoot:      %{_tmppath}/%{name}-%{branch}
+BuildRequires:  fdupes
+Requires(post): update-alternatives
+Requires(postun): update-alternatives
+Requires:       python-GitPython
+Requires:       python-Jinja2 >= 2.9
+Requires:       python-py
+Requires:       python-pytz
+%python_subpackages
 
 %description
 This is a source service for openSUSE Build Service.
@@ -26,22 +48,37 @@ This is a source service for openSUSE Build Service.
 Service to update the changelog from git commits.
 
 %prep
-%setup -q -n %{name}-%{branch}
+%setup -q -n %{name}-%{version}
 
 %build
 %python_build
+
+%check
+%pytest
 
 %install
 %python_install
 %makeinstall
 
-%files
+rm %{buildroot}%{_bindir}/update_changelog
+
+%python_expand %fdupes %{buildroot}/%{$python_sitelib}/updatechangelog
+
+%python_clone -a %{buildroot}/usr/lib/obs/service/update_changelog
+%python_clone -a %{buildroot}/usr/lib/obs/service/update_changelog.service
+
+%post
+%{python_install_alternative /usr/lib/obs/service/update_changelog /usr/lib/obs/service/update_changelog.service}
+
+%postun
+%python_uninstall_alternative update_changelog
+
+%files %{python_files}
 %dir /usr/lib/obs
 %dir /usr/lib/obs/service
-/usr/bin/update_changelog
-%{python3_sitelib}/updatechangelog
-%{python3_sitelib}/updatechangelog-*.egg-info
-/usr/lib/obs/service/update_changelog
-/usr/lib/obs/service/update_changelog.service
- 
+%{python_sitelib}/updatechangelog
+%{python_sitelib}/updatechangelog-*.egg-info
+%python_alternative /usr/lib/obs/service/update_changelog.service
+%python_alternative /usr/lib/obs/service/update_changelog
+
 %changelog
