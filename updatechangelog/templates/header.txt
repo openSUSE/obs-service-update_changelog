@@ -8,17 +8,17 @@
 - Added:
   {%- for item in added %}
   * {{ item }}
-  {%- endfor %}
+  {%- endfor -%}
 {% endif %}
 {%- if modified -%}
-{{- "\n" -}}
+{{- "\n" }}
 - Modified:
   {%- for item in modified %}
   * {{ item }}
-  {%- endfor %}
+  {%- endfor -%}
 {% endif %}
 {%- if deleted -%}
-{{- "\n" -}}
+{{- "\n" }}
 - Removed:
   {%- for item in deleted %}
   * {{ item }}

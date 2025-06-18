@@ -1,4 +1,5 @@
 import pytz
+import textwrap
 import pytest
 from datetime import datetime
 from unittest.mock import Mock, MagicMock, patch, mock_open
@@ -36,6 +37,52 @@ def test_rendering():
     with open("tests/expected.output", "r") as f:
         expected = f.read().strip()
     assert changelog_entry == expected
+
+
+def test_rendering_no_added():
+    expected_output = textwrap.dedent(
+        """
+        First entry
+        - Second entry
+
+        - Modified:
+          * first.patch
+
+        - Removed:
+          * second.patch"""
+    )
+    messages = ["First entry", "Second entry"]
+    modified = ["first.patch"]
+    deleted = ["second.patch"]
+    template = common.get_template()
+    changelog_entry = template.render(
+        messages=messages,
+        added=[],
+        modified=modified,
+        deleted=deleted,
+    )
+    assert changelog_entry == expected_output
+
+
+def test_rendering_no_added_no_modified():
+    expected_output = textwrap.dedent(
+        """
+        First entry
+        - Second entry
+
+        - Removed:
+          * first.patch"""
+    )
+    messages = ["First entry", "Second entry"]
+    deleted = ["first.patch"]
+    template = common.get_template()
+    changelog_entry = template.render(
+        messages=messages,
+        added=[],
+        modified=[],
+        deleted=deleted,
+    )
+    assert changelog_entry == expected_output
 
 
 def test_new_commit():
